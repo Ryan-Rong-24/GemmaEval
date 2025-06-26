@@ -1,0 +1,6 @@
+.env
+/data
+**/__pycache__
+logs/
+results/
+.DS_Store

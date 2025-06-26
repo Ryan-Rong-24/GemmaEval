@@ -1,0 +1,128 @@
+{
+  "evaluation_summary": {
+    "total_evaluations": 8,
+    "successful_evaluations": 8,
+    "error_rate": 0.0,
+    "models_evaluated": [
+      "gemma-3-27b-it",
+      "gemma-3-12b-it",
+      "gemma-3-4b-it",
+      "gemma-2-27b-it",
+      "gemma-2-9b-it",
+      "gemma-2-2b-it"
+    ],
+    "prompt_types_used": [
+      "simple",
+      "detailed",
+      "binary"
+    ]
+  },
+  "dataset_statistics": {
+    "total_images": 100,
+    "categories": {
+      "fire": 25,
+      "smoke": 30,
+      "both": 20,
+      "none": 25
+    },
+    "annotations": {
+      "fire": 45,
+      "smoke": 50,
+      "total": 95
+    }
+  },
+  "performance_metrics": {
+    "total_evaluations": 8,
+    "successful_evaluations": 8,
+    "error_rate": 0.0,
+    "average_processing_time": 2.2875,
+    "binary_classification": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "multi_class": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "per_model": {
+      "gemma-3-27b-it": {
+        "count": 4,
+        "average_processing_time": 2.925,
+        "binary_classification": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0
+        },
+        "multi_class": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0
+        }
+      },
+      "gemma-3-4b-it": {
+        "count": 4,
+        "average_processing_time": 1.65,
+        "binary_classification": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0
+        },
+        "multi_class": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0
+        }
+      }
+    },
+    "confusion_matrix": [
+      [
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        2
+      ]
+    ],
+    "confusion_matrix_labels": [
+      "none",
+      "fire",
+      "both",
+      "smoke"
+    ]
+  },
+  "generated_plots": {
+    "model_performance": "results/plots/model_performance.png",
+    "confusion_matrix": "results/plots/confusion_matrix.png",
+    "error_analysis": "results/plots/error_analysis.png"
+  },
+  "configuration": {
+    "batch_size": 10,
+    "max_images_per_category": 100,
+    "timeout_seconds": 30
+  }
+}
