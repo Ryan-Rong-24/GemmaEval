@@ -550,6 +550,8 @@ class GemmaEvaluator:
             'gemma-3-27b-it': 30,
             'gemma-3-12b-it': 30,
             'gemma-3-4b-it': 30,
+            'gemma-3n-e2b-it': 30,
+            'gemma-3n-e4b-it': 30,
         }
         
         # Extract base model name

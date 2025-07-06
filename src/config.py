@@ -38,9 +38,11 @@ class Config:
     
     # Gemma Models to Evaluate
     GEMMA_MODELS: List[str] = [
-        "gemma-3-27b-it",
-        "gemma-3-12b-it",
-        "gemma-3-4b-it",
+        # "gemma-3-27b-it",
+        # "gemma-3-12b-it",
+        # "gemma-3-4b-it",
+        "gemma-3n-e2b-it",
+        "gemma-3n-e4b-it"
     ]
     
     # Fire/Smoke Detection Prompts
