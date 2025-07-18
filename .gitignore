@@ -1,5 +1,6 @@
 .env
-/data
+data/D-Fire
+data/the_wildfire_dataset_2n_version
 **/__pycache__
 logs/
 results/
