@@ -1,0 +1,81 @@
+# Gemma 3N Unsloth Fine-tuning Configuration
+
+# Model configuration
+model_name: "unsloth/gemma-3n-E2B-it"
+model_type: "multimodal"
+load_in_4bit: false
+load_in_8bit: false
+use_gradient_checkpointing: true
+max_seq_length: 2048
+
+# Single GPU training
+use_unsloth: true
+gpu_device: 0
+bf16: true
+fp16: false
+dataloader_num_workers: 2
+
+# Data configuration
+data_base_path: "augmentoolkit/outputs/survival_dataset/"
+data_types:
+  - "factual_sft"              # ✅ Available
+  # - "pretrain"                 # ✅ Available  
+  - "rag_data"                 # ✅ Available
+  # - "representation_variation" # ✅ Available
+  - "correction"               # ✅ Available
+
+data_mixing_ratios: null  # Use all data, no sampling
+max_samples_per_type: 10000000
+validation_split: 0.1
+
+# Multi-stage training configuration
+training_stages: ["sft"]  # Skip pretrain stage, use LoRA SFT only
+
+# LoRA configuration (used for SFT stage, disabled for pretrain)
+use_lora: true
+full_finetuning: false
+lora_r: 64
+lora_alpha: 16  
+lora_dropout: 0.0
+target_modules: "all-linear"
+
+# Training hyperparameters
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 32
+learning_rate: 2e-4
+warmup_ratio: 0.03
+num_train_epochs: 2
+max_steps: 1000
+weight_decay: 0.01
+lr_scheduler_type: "cosine"
+
+# Vision/multimodal specific
+finetune_vision_layers: true
+finetune_language_layers: true
+finetune_attention_modules: true
+finetune_mlp_modules: true
+
+# Logging and saving
+logging_steps: 10
+save_steps: 100
+eval_steps: 100
+save_total_limit: 3
+report_to: "wandb"
+
+# Other settings
+seed: 3407
+use_fast_tokenizer: true
+chat_template: "gemma-3n"
+remove_unused_columns: false
+output_dir: "./gemma3n_e2b_finetuned_unsloth_8bit_it"
+
+# Dataset caching settings
+enable_dataset_caching: true
+cache_dir: "./dataset_cache"
+force_reprocess: false
+
+# STAGE-SPECIFIC CONFIGURATIONS:
+# ================================
+# Pretrain stage: use_lora=false (full finetuning), learning_rate=5e-5, batch_size=1
+# SFT stage: use_lora=true (LoRA), learning_rate=2e-4, batch_size=2

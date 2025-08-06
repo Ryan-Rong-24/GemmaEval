@@ -1,7 +1,10 @@
 .env
-data/D-Fire
-data/the_wildfire_dataset_2n_version
+data/
+dataset_cache/
+unsloth_compiled_cache/
+wandb/
 **/__pycache__
 logs/
 results/
 .DS_Store
+.venv/

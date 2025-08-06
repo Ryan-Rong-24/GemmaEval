@@ -1,25 +1,30 @@
-# GemmaScout: Fire/Smoke Detection Evaluation System
+# GemmaScout: Multi-Domain Vision-Language Model Training & Evaluation
 
-A comprehensive, automated benchmarking framework designed to evaluate Gemma language models on fire and smoke detection tasks using the D-Fire dataset.
+A comprehensive framework for training and evaluating Gemma language models across multiple vision domains: **fire/smoke detection**, **mushroom identification**, and **plant species recognition**. Features Augmentoolkit integration for synthetic data generation and advanced fine-tuning capabilities.
 
 🔗 **Project page**: https://summerofcode.withgoogle.com/programs/2025/projects/RSjjE3tM
 
 ## 🔥 Overview
 
-This system evaluates the performance of different Gemma models (3-27B, 3-12B, 3-4B, etc.) on fire and smoke detection using visual analysis. It uses the [D-Fire dataset](https://github.com/gaiasd/DFireDataset) which contains over 21,000 images with fire, smoke, and no-fire/smoke scenarios.
+GemmaScout is an advanced multi-domain system that combines vision-language model fine-tuning with real-world classification tasks. The system leverages **Augmentoolkit** for synthetic data generation and **Unsloth** for efficient LoRA-based fine-tuning of Gemma models across three distinct domains:
+
+1. **🔥 Fire/Smoke Detection**: Safety-critical detection using D-Fire dataset
+2. **🍄 Mushroom Identification**: Genus-level fungal classification 
+3. **🌱 Plant Species Recognition**: Wild edible and medicinal plant identification
 
 ### Key Features
 
-- **Multi-Model Evaluation**: Test multiple Gemma model variants simultaneously
-- **Flexible Prompting**: Support for different prompt strategies (simple, detailed)
-- **Comprehensive Analysis**: Detailed metrics, visualizations, and reports
-- **Modular Architecture**: Clean, extensible codebase with proper separation of concerns
-- **Concurrent Processing**: Efficient parallel evaluation with configurable concurrency
-- **Rich Reporting**: Generate both JSON reports and human-readable summaries
+- **🤖 Augmentoolkit Integration**: Generate high-quality synthetic training data for enhanced model performance
+- **⚡ Efficient Fine-tuning**: LoRA-based training with Unsloth for faster, memory-efficient model adaptation
+- **📊 Multi-Domain Evaluation**: Test models across fire detection, mushroom ID, and plant recognition
+- **🔬 LoRA Ablation Studies**: Analyze the relationship between LoRA rank and model performance
+- **🎯 Interactive Inference**: Real-time chat interface for testing fine-tuned models
+- **📈 Comprehensive Analysis**: Detailed metrics, visualizations, and pairwise evaluations
 
 ## 📊 Dataset Information
 
-The D-Fire dataset contains:
+### 🔥 D-Fire Dataset (Fire/Smoke Detection)
+The D-Fire dataset contains over 21,000 images for fire and smoke detection:
 
 | Category | # Images | Description |
 |----------|----------|-------------|
@@ -29,338 +34,234 @@ The D-Fire dataset contains:
 | None | 9,838 | Images without fire or smoke |
 | **Total** | **21,527** | **Complete dataset** |
 
-### Label Format
+**Label Format**: YOLO format with class 0 (smoke) and class 1 (fire)
 
-The D-Fire dataset uses YOLO format labels:
+### 🍄 Mushroom Dataset (Genus Identification)
+Comprehensive mushroom genus classification dataset with 6,714 images:
 
-- **Empty file**: No fire or smoke present (`none` category)
-- **Class ID 0**: Smoke detection 
-- **Class ID 1**: Fire detection
-- **Format**: `class_id x_center y_center width height`
-- **Coordinates**: Normalized between 0 and 1
+| Genus | Training | Test | Total | Description |
+|-------|----------|------|-------|-------------|
+| Lactarius | 1,251 | 312 | 1,563 | Milk-producing mushrooms |
+| Russula | 919 | 229 | 1,148 | Brittle-fleshed mushrooms |
+| Boletus | 859 | 214 | 1,073 | Pore-bearing mushrooms |
+| Cortinarius | 669 | 167 | 836 | Cobweb-veiled mushrooms |
+| Amanita | 600 | 150 | 750 | Often toxic mushrooms |
+| Entoloma | 292 | 72 | 364 | Pink-spored mushrooms |
+| Agaricus | 283 | 70 | 353 | Button/portobello type |
+| Hygrocybe | 253 | 63 | 316 | Waxy cap mushrooms |
+| Suillus | 249 | 62 | 311 | Sticky cap boletes |
 
-Example label file content:
-```
-1 0.7295 0.6448 0.025 0.0405    # Fire detection
-0 0.445 0.4984 0.878 0.9759     # Smoke detection
-```
+**Features**: Detailed genus descriptions, safety information, habitat data
+
+### 🌱 Plant Dataset (Species Recognition)
+Wild edible and medicinal plant identification with 6,868 images across 55+ species:
+
+| Category | Training | Test | Total | Use Cases |
+|----------|----------|------|-------|-----------|
+| Dandelion | 847 | 211 | 1,058 | Edible greens, medicinal |
+| Daisy Fleabane | 620 | 155 | 775 | Medicinal, insect repellent |
+| Sunflower | 592 | 148 | 740 | Seeds, oil, survival food |
+| Chickweed | 124 | 31 | 155 | Edible greens, medicinal |
+| Curly Dock | 124 | 31 | 155 | Edible, vitamin C source |
+| Henbit | 124 | 31 | 155 | Edible flowers and leaves |
+| Lambs Quarters | 124 | 31 | 155 | Nutritious edible greens |
+| Peppergrass | 124 | 31 | 155 | Peppery edible seeds |
+| **+47 more species** | | | | Various edible/medicinal uses |
+
+**Features**: Survival/bushcraft focus, edibility information, medicinal properties
+
+## 🧠 Augmentoolkit Integration
+
+This system uses [Augmentoolkit](https://github.com/e-p-armstrong/augmentoolkit) to generate synthetic training data that enhances model performance across all domains.
+
+### Supported Data Types
+
+- **Pretraining Data**: Raw text in `{"text": "..."}` format for domain adaptation
+- **Factual SFT**: Conversations in ShareGPT format for instruction following
+- **RAG Data**: Segmented format with loss masking for retrieval-augmented generation
+- **Multimodal Data**: Vision-language pairs for image understanding
+- **Correction Data**: Error correction pairs with masked incorrect answers
+- **Chain-of-thought**: Reasoning conversations for improved analytical capabilities
+
+### Multi-stage Training Pipeline
+
+1. **Pretrain Stage**: Domain adaptation using raw text data
+   - Fire safety manuals, emergency procedures
+   - Mycological texts, mushroom identification guides
+   - Botanical knowledge, foraging manuals, survival guides
+2. **SFT Stage**: Instruction tuning using conversational data
+   - Factual SFT, RAG, correction, and generic conversation datasets
 
 ## 🚀 Quick Start
 
-### 1. Setup
+### 1. Setup Environment
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd GemmaEval
 
-# Run the setup script
-python scripts/setup.py
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp env.example .env
+# Edit .env and add your GEMINI_API_KEY
 ```
 
-### 2. Configuration
-
-Edit the `.env` file and add your Gemini API key:
+### 2. Download Datasets
 
 ```bash
-GEMINI_API_KEY=your_actual_api_key_here
+# D-Fire dataset (fire/smoke detection)
+wget https://github.com/gaiasd/DFireDataset/archive/refs/heads/main.zip
+unzip main.zip -d data/
+mv data/DFireDataset-main data/D-Fire
+
+# Mushroom and plant datasets should be in:
+# data/mushrooms/ and data/plants/
 ```
 
-### 3. Run Evaluation
+### 3. Quick Evaluation Tests
 
 ```bash
-# Quick test (recommended first run)
-python main.py --quick-test
+# Fire/smoke detection evaluation
+./scripts/run_fire_smoke_evaluation.sh --quick-test
 
-# Full evaluation
-python main.py
+# LoRA ablation study (mushroom dataset)
+./scripts/run_lora_ablation.sh
 
-# Custom evaluation
-python main.py --models gemma-3-27b-it gemma-3-4b-it --prompt-types simple --max-images 50
+# Interactive inference
+python inference_interactive_chat.py
 ```
 
 ## 📁 Project Structure
 
 ```
 GemmaEval/
-├── main.py                 # Main evaluation script
-├── requirements.txt        # Python dependencies
-├── env.example            # Environment variables template
-├── src/                   # Source code modules
-│   ├── __init__.py
-│   ├── config.py          # Configuration management
-│   ├── dataset.py         # D-Fire dataset handling
-│   ├── evaluator.py       # Gemma model evaluation
-│   └── analyzer.py        # Results analysis and reporting
-├── scripts/
-│   └── setup.py          # Setup and installation script
-├── tests/
-│   └── test_system.py    # Test suite
-├── data/
-│   └── D-Fire/           # D-Fire dataset (download separately)
-├── results/              # Evaluation results and reports
-└── logs/                 # System logs
+├── 🔥 FIRE/SMOKE DETECTION
+│   ├── main.py                    # Main evaluation script for D-Fire dataset
+│   └── scripts/
+│       └── run_fire_smoke_evaluation.sh  # Fire/smoke detection runner
+│
+├── 🧠 TRAINING & FINE-TUNING
+│   ├── finetune_gemma.py          # Augmentoolkit fine-tuning pipeline
+│   ├── ablate_lora.py             # LoRA ablation experiments (mushroom)
+│   └── scripts/
+│       └── run_lora_ablation.sh   # LoRA experiment runner
+│
+├── 🎯 INFERENCE & EVALUATION
+│   ├── inference_gemma3n.py       # Core inference module
+│   ├── inference_interactive_chat.py  # Interactive chat interface
+│   ├── evaluate_qa_pairwise.py    # Pairwise model evaluation
+│   └── scripts/
+│       └── run_qa_evaluation.sh   # QA evaluation runner
+│
+├── 🛠️ UTILITIES
+│   ├── utils_qa_dataset_collector.py  # Dataset collection utilities
+│   └── scripts/
+│       ├── setup.py               # Environment setup
+│       └── demo.py               # Demo and testing
+│
+├── 📦 CORE MODULES
+│   └── src/
+│       ├── config.py              # Configuration management
+│       ├── dataset.py             # D-Fire dataset handling
+│       ├── evaluator.py           # Model evaluation logic
+│       └── analyzer.py            # Results analysis
+│
+├── 📊 DATA & RESULTS
+│   ├── data/
+│   │   ├── D-Fire/               # Fire/smoke detection dataset
+│   │   ├── mushrooms/            # Mushroom genus classification
+│   │   └── plants/               # Plant species identification
+│   ├── results/                  # Evaluation results
+│   └── logs/                     # System logs
+│
+└── 🧪 TESTING & CONFIG
+    ├── tests/                    # Test suite
+    ├── notebooks/                # Jupyter notebooks
+    ├── requirements.txt          # Dependencies
+    ├── env.example              # Environment template
+    └── gemma3n_config_unsloth.yaml  # Training configuration
 ```
 
-## 🔧 Usage
+## 🎯 Usage Examples
 
-### Command Line Options
+### Fire/Smoke Detection Evaluation
 
 ```bash
-python main.py [OPTIONS]
+# Quick test with default models
+./scripts/run_fire_smoke_evaluation.sh --quick-test
 
-Options:
-  --models MODEL [MODEL ...]        # Specific models to evaluate
-  --prompt-types TYPE [TYPE ...]    # Prompt types: simple, detailed
-  --max-images INT                  # Max images per category (default: 100)
-  --max-workers INT                 # Concurrent evaluations (default: 5)
-  --output-dir DIR                  # Output directory (default: results)
-  --dataset-split {train,test}      # Dataset split to use (default: test)
-  --quick-test                      # Run minimal test
-  --analyze-only FILE               # Analyze existing results
-  --help                           # Show help message
+# Full evaluation with specific models
+./scripts/run_fire_smoke_evaluation.sh --models "gemma-3-27b-it gemma-3-12b-it"
+
+# Custom configuration
+python main.py \
+    --models gemma-3-27b-it gemma-3-4b-it \
+    --prompt-types simple detailed \
+    --max-images 200 \
+    --use-all-images \
+    --dataset-splits train test
 ```
 
-### Examples
+### Multi-Domain Fine-tuning with Augmentoolkit
+
+```bashå
+python finetune_gemma.py \
+    --use_lora \
+    --lora_r 64 \
+    --max_steps 1000
+```
+
+### LoRA Ablation Studies
 
 ```bash
-# Test specific models with simple prompts
-python main.py --models gemma-3-27b-it gemma-3-4b-it --prompt-types simple
+# Run mushroom genus classification ablation
+./scripts/run_lora_ablation.sh
 
-# Quick evaluation with minimal images
-python main.py --quick-test --max-images 10
-
-# Full evaluation with custom output directory
-python main.py --output-dir my_results --max-workers 8
-
-# Analyze existing results
-python main.py --analyze-only results/raw_results.json
+# Custom LoRA experiment
+python ablate_lora.py \
+    --r-values 4 8 16 32 64 128 256 \
+    --max-steps 500 \
+    --dataset-path "data/mushrooms/train/" \
+    --test-dataset-path "data/mushrooms/test/" \
+    --output-dir mushroom_lora_ablation
 ```
 
-## 📈 Evaluation Metrics
+### Interactive Multi-Domain Inference
 
-The system computes comprehensive metrics:
+```bash
+# Start interactive chat with fine-tuned model
+python inference_interactive_chat.py
 
-### Multi-class Classification
-- Accuracy across all categories (fire, smoke, both, none)
-- Detailed confusion matrices
-- Per-category performance
+# Example multimodal usage:
+# > image:/path/to/fire_image.jpg Is there fire in this image?
+# > image:/path/to/mushroom.jpg What genus is this mushroom?
+# > image:/path/to/plant.jpg Is this plant edible?
+# > What safety measures should be taken for fire emergencies?
+```
 
-### Performance Analysis
-- Processing time per model
-- Error rate analysis
-- Scalability metrics
-
-## 🛠️ Configuration
-
-Configuration is managed through environment variables and the `Config` class:
+## 🔧 Configuration
 
 ### Environment Variables (.env)
 ```bash
 # API Configuration
 GEMINI_API_KEY=your_api_key
-
-# Dataset Configuration  
-DATASET_PATH=data/D-Fire
-RESULTS_PATH=results
-
-# Evaluation Configuration
-BATCH_SIZE=10
-MAX_IMAGES_PER_CATEGORY=100
-TIMEOUT_SECONDS=30
-
-# Logging
-LOG_LEVEL=INFO
-LOG_FILE=logs/evaluation.log
+OPENAI_API_KEY=your_api_key
 ```
 
 ### Supported Models
-- gemma-3-27b-it
-- gemma-3-12b-it  
-- gemma-3-4b-it
-- gemma-2-27b-it
-- gemma-2-9b-it
-- gemma-2-2b-it
-
-### Prompt Types
-
-1. **Simple**: "Is there fire or smoke visible in this image? Answer with: 'fire', 'smoke', 'both', or 'none'."
-
-2. **Detailed**: "Analyze this image for fire and smoke detection. Respond with JSON format: {'fire': true/false, 'smoke': true/false, 'confidence': 0-1}"
-
-## 📊 Results and Reports
-
-The system generates comprehensive reports:
-
-### Raw Results (`raw_results.json`)
-- Complete evaluation data for each image/model combination
-- Response times, errors, parsed predictions
-- Ground truth comparisons
-
-### Analysis Report (`evaluation_report.json`)
-- Computed metrics and statistics
-- Performance comparisons
-- Configuration details
-
-### Text Summary (`evaluation_report.txt`)
-- Human-readable summary
-- Key findings and metrics
-- Model comparisons
-
-### Visualizations
-- Model performance comparisons
-- Confusion matrices
-- Error analysis charts
-- Processing time distributions
-
-## 🧪 Testing
-
-Run the test suite to verify system functionality:
-
-```bash
-# Run all tests
-python tests/test_system.py
-
-# Run specific test categories
-python -m unittest tests.test_system.TestConfig
-python -m unittest tests.test_system.TestEvaluator
-```
-
-# Full Dataset Evaluation
-
-The evaluation system now supports testing on all available images from both train and test datasets, rather than being limited to 100 images per category from just the test set.
-
-## New Command Line Options
-
-### `--use-all-images`
-Use all available images, ignoring any limits set by `--max-images`.
-
-### `--dataset-splits`
-Specify multiple dataset splits to evaluate on. Can be:
-- `--dataset-splits train` (train only)
-- `--dataset-splits test` (test only) 
-- `--dataset-splits train test` (both train and test)
-
-### `--max-images`
-Set to 0 or negative value for unlimited images per category.
-
-## Usage Examples
-
-### Evaluate on ALL images from both train and test sets:
-```bash
-python main.py --use-all-images --dataset-splits train test
-```
-
-### Evaluate on ALL images from test set only:
-```bash
-python main.py --use-all-images --dataset-splits test
-```
-
-### Evaluate with specific limit across both train and test:
-```bash
-python main.py --max-images 500 --dataset-splits train test
-```
-
-### Use unlimited images (alternative to --use-all-images):
-```bash
-python main.py --max-images 0 --dataset-splits train test
-```
-
-### Quick test with multiple splits:
-```bash
-python main.py --quick-test --dataset-splits train test
-```
-
-## Performance Considerations
-
-- **Memory Usage**: Loading all images will require significantly more memory
-- **Processing Time**: Full dataset evaluation can take hours depending on:
-  - Number of models being evaluated
-  - API rate limits
-  - Dataset size
-- **API Costs**: Evaluate all images will result in many more API calls
-
-## Async Processing
-
-For better performance with large datasets, use the async evaluator:
-
-```bash
-python main.py --use-all-images --dataset-splits train test --use-async --max-concurrent 20
-```
-
-## Output Organization
-
-Results will be organized with clear labeling of the dataset configuration:
-- Folder names include split information (e.g., `train_test_all_simple`)
-- Image names are prefixed with split information to avoid conflicts
-- Combined statistics show totals across all splits
-
-## Example Full Command
-
-```bash
-python main.py \
-    --use-all-images \
-    --dataset-splits train test \
-    --models gemma-3-27b-it gemma-3-12b-it \
-    --prompt-types simple detailed \
-    --use-async \
-    --max-concurrent 15 \
-    --max-workers 10
-```
-
-This will:
-- Use ALL images from both train and test splits
-- Evaluate with the two largest Gemma models
-- Use both simple and detailed prompts
-- Use async processing for better performance
-- Limit to 15 concurrent requests to respect API limits 
-
-## 📋 Requirements
-
-### Python Dependencies
-- google-genai >= 0.8.0
-- python-dotenv >= 1.0.0
-- Pillow >= 10.0.0
-- pandas >= 2.0.0
-- matplotlib >= 3.7.0
-- scikit-learn >= 1.3.0
-- rich >= 13.0.0
-
-### System Requirements
-- Python 3.8+
-- Internet connection for Gemini API
-- Sufficient disk space for dataset and results
-
-## 🔒 API Usage and Costs
-
-This system uses the Gemini API for model evaluation:
-
-- **API Key Required**: Obtain from Google AI Studio
-- **Usage Tracking**: Each image evaluation counts as one API call
-- **Cost Estimation**: Varies by model size and number of evaluations
-- **Rate Limiting**: Configurable concurrent workers to manage API usage
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Run the test suite
-5. Submit a pull request
+- **Gemma 3n Series**: gemma-3n-e2b-it, gemma-3n-34b-it
+- **Gemma 3 Series**: gemma-3-4b-it, gemma-3-12b-it, gemma-3-27b-it
 
 ## 🙏 Acknowledgments
 
-- **D-Fire Dataset**: [Gaia Solutions](https://github.com/gaiasd/DFireDataset)
+- **Augmentoolkit**: [E.P. Armstrong](https://github.com/e-p-armstrong/augmentoolkit) - Synthetic data generation
+- **Unsloth**: [Unsloth AI](https://github.com/unslothai/unsloth) - Efficient fine-tuning
 - **Google Summer of Code 2025**
 - **DeepMind Gemma Team**
 
-## Support
-
-1. Run `python main.py --help` for usage information
-2. Run `python scripts/setup.py` to verify configuration
-
 ---
 
-**Made with 🔥 for Google Summer of Code 2025**
+**Made with 🔥🍄🌱 for Google Summer of Code 2025 **
