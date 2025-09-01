@@ -92,14 +92,6 @@ class Gemma3NInference:
             
             # Set to inference mode
             FastModel.for_inference(self.model)
-            
-            # For multimodal, we might need the processor too
-            try:
-                from transformers import AutoProcessor
-                self.processor = AutoProcessor.from_pretrained(self.model_path)
-                logger.info("✅ Loaded multimodal processor")
-            except Exception as e:
-                logger.info(f"No processor found (text-only model): {e}")
                 
         except Exception as e:
             logger.warning(f"Unsloth loading failed: {e}")
@@ -212,9 +204,16 @@ class Gemma3NInference:
         # Format the prompt
         formatted_prompt = self.format_chat_message(prompt, system_message)
         
-        if image is not None and self.processor is not None:
-            # Multimodal generation
-            return self._generate_multimodal(formatted_prompt, image, **generation_kwargs)
+        if image is not None:
+            if self.use_unsloth and UNSLOTH_AVAILABLE:
+                # Unsloth multimodal generation (uses tokenizer directly)
+                return self._generate_multimodal_unsloth(prompt, image, system_message, **generation_kwargs)
+            elif self.processor is not None:
+                # Standard transformers multimodal generation
+                return self._generate_multimodal(formatted_prompt, image, **generation_kwargs)
+            else:
+                logger.warning("Image provided but no multimodal support available")
+                return self._generate_text_only(formatted_prompt, **generation_kwargs)
         else:
             # Text-only generation
             return self._generate_text_only(formatted_prompt, **generation_kwargs)
@@ -259,6 +258,70 @@ class Gemma3NInference:
             outputs[0][len(inputs["input_ids"][0]):], 
             skip_special_tokens=True
         )
+        
+        return response.strip()
+    
+    def _generate_multimodal_unsloth(
+        self, 
+        prompt: str, 
+        image: Union[str, Image.Image], 
+        system_message: Optional[str] = None,
+        **generation_kwargs
+    ) -> str:
+        """Generate multimodal response using Unsloth approach."""
+        
+        # Load and process image
+        pil_image = self.load_image(image)
+        
+        # Prepare messages in the format expected by Unsloth
+        # Use the original image path if it's a string, otherwise we'll need to save the PIL image
+        image_input = image
+        if not isinstance(image, str):
+            # For PIL images, we need to use the image object directly
+            image_input = pil_image
+            
+        messages = [{
+            "role": "user",
+            "content": [
+                {"type": "image", "image": image_input},
+                {"type": "text", "text": prompt}
+            ]
+        }]
+        
+        # Add system message if provided
+        if system_message:
+            messages.insert(0, {"role": "system", "content": system_message})
+        
+        # Set generation parameters
+        gen_kwargs = {
+            "max_new_tokens": self.max_new_tokens,
+            "temperature": self.temperature,
+            "top_p": 0.95,
+            "top_k": 64,
+            "do_sample": self.do_sample,
+        }
+        gen_kwargs.update(generation_kwargs)
+        
+        # Generate using Unsloth approach
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **self.tokenizer.apply_chat_template(
+                    messages,
+                    add_generation_prompt=True,
+                    tokenize=True,
+                    return_dict=True,
+                    return_tensors="pt",
+                ).to(next(self.model.parameters()).device),
+                **gen_kwargs
+            )
+        
+        # Decode response
+        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Extract the model response from the full conversation
+        # Look for the last part after the generation prompt
+        if "<start_of_turn>model\n" in response:
+            response = response.split("<start_of_turn>model\n")[-1].strip()
         
         return response.strip()
     

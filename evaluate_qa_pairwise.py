@@ -22,7 +22,8 @@ Usage:
     python evaluate_qa_pairwise.py \
         --dataset "./data/qa_dataset.json" \
         --models "model1:./path/to/model1" "model2:./path/to/model2" \
-        --judges "gpt-4o" "gemma-3-27b-it"
+        --judges "gpt-4o" "gemma-3-27b-it" \
+        --use-unsloth
     
     # Required environment variables:
     # export OPENAI_API_KEY="your-openai-api-key"
@@ -271,7 +272,7 @@ class PairwiseLLMJudge:
 class PairwiseEvaluator:
     """Main pairwise evaluation system."""
     
-    def __init__(self, models: List[Tuple[str, str]], judge_models: List[str] = None):
+    def __init__(self, models: List[Tuple[str, str]], judge_models: List[str] = None, use_unsloth: bool = True):
         """
         Initialize evaluator.
         
@@ -279,6 +280,7 @@ class PairwiseEvaluator:
             models: List of (model_name, model_path) tuples
             judge_models: List of judge model names (default: ["gpt-4o", "gemma-3-27b-it"])
                          Supported models: "gpt-4o", "gemma-3-27b-it"
+            use_unsloth: Whether to use Unsloth for optimized inference
         """
         self.models = {}
         self.judges = []
@@ -287,11 +289,12 @@ class PairwiseEvaluator:
         for model_name, model_path in models:
             if GEMMA_AVAILABLE:
                 print(f"🚀 Loading model '{model_name}' from: {model_path}")
+                if use_unsloth:
+                    print(f"   Using Unsloth optimization for '{model_name}'")
                 self.models[model_name] = Gemma3NInference(
                     model_path=model_path,
-                    model_name=model_name,
-                    max_seq_len=4096,
-                    device="auto"
+                    device="auto",
+                    use_unsloth=use_unsloth
                 )
             else:
                 print(f"⚠️  Model '{model_name}' using placeholder")
@@ -320,9 +323,9 @@ class PairwiseEvaluator:
         
         if model:
             try:
-                response = model.generate_response(
+                response = model.generate_text(
                     input_text,
-                    system_prompt=FixedInstructionPrompts.SYSTEM_PROMPT,
+                    system_message=FixedInstructionPrompts.SYSTEM_PROMPT,
                     **FixedInstructionPrompts.GENERATION_PARAMS
                 )
             except Exception as e:
@@ -707,6 +710,8 @@ def main():
                        help='Number of QA examples to sample (default: use all)')
     parser.add_argument('--seed', type=int, default=42,
                        help='Random seed for reproducibility')
+    parser.add_argument('--use-unsloth', action='store_true',
+                       help='Use Unsloth for optimized inference')
     
     args = parser.parse_args()
     
@@ -745,7 +750,7 @@ def main():
         print(f"📝 Sampled {len(qa_examples)} examples for evaluation")
     
     # Initialize evaluator
-    evaluator = PairwiseEvaluator(models, args.judges)
+    evaluator = PairwiseEvaluator(models, args.judges, use_unsloth=args.use_unsloth)
     
     # Create comparisons
     comparisons = evaluator.create_pairwise_comparisons(qa_examples)
